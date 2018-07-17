@@ -1,0 +1,15 @@
+{
+  "name": "Udacity Blockchain Nanodegree Program",
+  "version": "1.0.0",
+  "description": "Lesson 9: Private Blockchains -  Building a simple private blockchain",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Bruno Tomé",
+  "license": "MIT",
+  "dependencies": {
+    "crypto-js": "^3.1.9-1",
+    "level": "^4.0.0"
+  }
+}
