@@ -1,8 +1,5 @@
 const SHA256 = require('crypto-js/sha256')
 
-/* ==== Block Class ========================
-|  Class with a constructor for block
-|  =========================================*/
 class Block {
   constructor(data) {
     this.hash = "",
@@ -13,9 +10,6 @@ class Block {
   }
 }
 
-/* ==== Block Class ===========================
-|  Class with a constructor for new blockchain
-|  ============================================*/
 class Blockchain {
   constructor() {
     this.chain = [];
