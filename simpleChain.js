@@ -1,3 +1,6 @@
+/* ==== Block Class ========================
+|  Class with a constructor for block
+|  =========================================*/
 class Block {
   constructor(data) {
     this.hash = "",
@@ -8,3 +11,15 @@ class Block {
   }
 }
 
+/* ==== Block Class ===========================
+|  Class with a constructor for new blockchain
+|  ============================================*/
+class Blockchain {
+  constructor() {
+    this.chain = [];
+  }
+  
+  addBlock(newBlock) {
+    this.chain.push(newBlock);
+  }
+}
