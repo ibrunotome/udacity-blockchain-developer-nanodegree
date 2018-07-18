@@ -2,10 +2,10 @@
 
 ## Projects
 
-### Manage Your Blockchain Identity
+### 1. Manage Your Blockchain Identity
 
 Learn to create your identity on the Blockchain and interact with an existing web service.
 
-### Building your own Private Blockchain
+### 2. Building your own Private Blockchain
 
 Building your own Private Blockchain utilizing Node.js with LevelDB.
