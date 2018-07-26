@@ -32,7 +32,7 @@ class Blockchain {
     newBlock.time = new Date().getTime().toString().slice(0, -3)
 
     if (newBlock.height > 0) {
-      const prevBlock = await this.getBlockFromDB(height)
+      const prevBlock = await this.getBlock(height)
       newBlock.previousBlockHash = prevBlock.hash
       console.log(`Previous hash: ${newBlock.previousBlockHash}`)
     }
@@ -47,7 +47,7 @@ class Blockchain {
    * Criteria: Modify getBlockHeight() function to retrieve current block height within the LevelDB chain.
    */
   async getBlockHeight() {
-    return this.getBlockHeightFromDB()
+    return await this.getBlockHeightFromDB()
   }
 
   /**
@@ -56,8 +56,66 @@ class Blockchain {
    * @param {int} blockHeight 
    */
   async getBlock(blockHeight) {
-    const block = await this.getBlockFromDB(blockHeight)
-    return JSON.parse(block)
+    return JSON.parse(await this.getBlockFromDB(blockHeight))
+  }
+
+  /**
+   * Criteria: Modify the validateBlock() function to validate a block stored within levelDB.
+   * 
+   * @param {int} blockHeight 
+   */
+  async validateBlock(blockHeight){
+    let block = await this.getBlock(blockHeight);
+    let blockHash = block.hash;
+    block.hash = '';
+    
+    let validBlockHash = SHA256(JSON.stringify(block)).toString();
+
+    console.log("Blockhash " + blockHash)
+    console.log("Valid blockhash " + validBlockHash)
+
+    if (blockHash === validBlockHash) {
+        console.log("deu true!")
+        return true;
+      } else {
+        console.log(`Block #${blockHeight} invalid hash: ${blockHash} <> ${validBlockHash}`);
+        return false;
+      }
+  }
+
+  /**
+   * Criteria: Modify the validateChain() function to validate blockchain stored within levelDB.
+   */
+  async validateChain(){
+    let errorLog = []
+    let previousHash = ''
+    let block = ''
+    let isValidBlock = false
+
+    db.createReadStream().on('data', (data) => {
+      block = JSON.parse(data.value)
+
+      isValidBlock = this.validateBlock(block.height)
+
+      if (!isValidBlock) {
+        errorLog.push(data.key)
+      } 
+
+      if (block.previousBlockHash !== previousHash) {
+        errorLog.push(data.key)
+      }
+
+      previousHash = block.hash
+    }).on('error', (error) => {
+      console.log("Error on validateChain")
+    }).on('close', () => {
+      if (errorLog.length > 0) {
+        console.log(`Block errors = ${errorLog.length}`)
+        console.log(`Blocks: ${errorLog}`)
+      } else {
+        console.log('No errors detected')
+      }
+    })
   }
 
   // Level db functions
@@ -87,7 +145,7 @@ class Blockchain {
           reject(error)
         }
 
-        resolve(JSON.parse(value))
+        resolve(value)
       })
     })
   }
@@ -107,6 +165,16 @@ class Blockchain {
   }
 }
 
-let blockchain = new Blockchain()
+let blockchain = new Blockchain();
 
-setInterval(() => blockchain.addBlock(new Block('test data 1')), 1000)
+(function theLoop (i) {
+  setTimeout(() => {
+    blockchain.addBlock(new Block(`Test data ${i}`)).then(() => {
+      if (--i) {
+        theLoop(i)
+      }
+    })
+  }, 100);
+})(10);
+
+setTimeout(() => blockchain.validateChain(), 2000)
