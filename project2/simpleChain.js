@@ -64,18 +64,14 @@ class Blockchain {
    * 
    * @param {int} blockHeight 
    */
-  async validateBlock(blockHeight){
+  async validateBlock(blockHeight) {
     let block = await this.getBlock(blockHeight);
     let blockHash = block.hash;
     block.hash = '';
     
     let validBlockHash = SHA256(JSON.stringify(block)).toString();
 
-    console.log("Blockhash " + blockHash)
-    console.log("Valid blockhash " + validBlockHash)
-
     if (blockHash === validBlockHash) {
-        console.log("deu true!")
         return true;
       } else {
         console.log(`Block #${blockHeight} invalid hash: ${blockHash} <> ${validBlockHash}`);
@@ -86,7 +82,7 @@ class Blockchain {
   /**
    * Criteria: Modify the validateChain() function to validate blockchain stored within levelDB.
    */
-  async validateChain(){
+  async validateChain() {
     let errorLog = []
     let previousHash = ''
     let block = ''
