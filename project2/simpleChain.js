@@ -9,7 +9,16 @@ const chainDB = './chaindata'
 const db = level(chainDB)
 
 class Blockchain {
-  constructor() {}
+  constructor() {
+    /**
+     * Criteria: Genesis block persist as the first block in the blockchain using LevelDB.
+     */
+    this.getBlockHeight().then((height) => {
+      if (height === -1) {
+        this.addBlock(new Block("Genesis block")).then(() => console.log("Genesis block added!"))
+      }
+    })
+  }
 
   /**
    * Criteria: addBlock(newBlock) function includes a method to store newBlock with LevelDB.
@@ -114,12 +123,7 @@ class Blockchain {
           reject(error)
         }
 
-        if (key === 0) {
-          console.log('Added block #0 (Genesis block)')
-        } else {
-          console.log(`Added block #${key}`)
-        }
-
+        console.log(`Added block #${key}`)
         resolve(`Added block #${key}`)
       })
     })
@@ -143,8 +147,8 @@ class Blockchain {
 
       db.createReadStream().on('data', (data) => {
         height++
-      }).on('error', (err) => {
-        reject(err)
+      }).on('error', (error) => {
+        reject(error)
       }).on('close', () => {
         resolve(height)
       })
