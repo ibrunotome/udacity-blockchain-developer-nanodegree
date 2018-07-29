@@ -85,33 +85,34 @@ class Blockchain {
   async validateChain() {
     let errorLog = []
     let previousHash = ''
-    let block = ''
     let isValidBlock = false
 
-    db.createReadStream().on('data', (data) => {
-      block = JSON.parse(data.value)
+    const heigh = await this.getBlockHeightFromDB()
 
-      isValidBlock = this.validateBlock(block.height)
+    for (let i = 0; i < heigh; i++) {
+      this.getBlock(i).then((block) => {
+        isValidBlock = this.validateBlock(block.height)
 
-      if (!isValidBlock) {
-        errorLog.push(data.key)
-      } 
+        if (!isValidBlock) {
+          errorLog.push(i)
+        } 
 
-      if (block.previousBlockHash !== previousHash) {
-        errorLog.push(data.key)
-      }
+        if (block.previousBlockHash !== previousHash) {
+          errorLog.push(i)
+        }
 
-      previousHash = block.hash
-    }).on('error', (error) => {
-      console.log("Error on validateChain")
-    }).on('close', () => {
-      if (errorLog.length > 0) {
-        console.log(`Block errors = ${errorLog.length}`)
-        console.log(`Blocks: ${errorLog}`)
-      } else {
-        console.log('No errors detected')
-      }
-    })
+        previousHash = block.hash
+
+        if (i === (heigh -1)) {
+          if (errorLog.length > 0) {
+            console.log(`Block errors = ${errorLog.length}`)
+            console.log(`Blocks: ${errorLog}`)
+          } else {
+            console.log('No errors detected')
+          }
+        }
+      })
+    }
   }
 
   // Level db functions
