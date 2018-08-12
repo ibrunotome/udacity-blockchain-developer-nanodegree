@@ -20,9 +20,11 @@ app.get('/block/:height', async (req, res) => {
     const blockchain = new Blockchain()
 
     try {
-        const response = await blockchain.getBlock(req.params.height)
-
-        res.send(response);
+        setTimeout(() => {
+            blockchain.getBlock(req.params.height).then((response) => {
+                res.send(response);
+            })
+        }, 10)
     } catch(error) {
         res.status(404).json({"status": 404, "message": "Block not found"})
     }
@@ -46,5 +48,5 @@ app.post('/block', async (req, res) => {
                 })
             })
         })
-      }, 100);
+      }, 10);
 })
