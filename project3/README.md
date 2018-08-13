@@ -35,5 +35,5 @@ example:
 example:
 
 ```
-curl -X "POST" "http://localhost:8000/block" \ -H 'Content-Type: application/json' \ -d $'{ "body": "Testing block with test string data" }'
+curl -X "POST" "http://localhost:8000/block" -H 'Content-Type: application/json' -d $'{"body":"block body contents"}'
 ```
