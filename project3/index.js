@@ -36,7 +36,7 @@ app.get('/block/:height', async (req, res) => {
 app.post('/block', async (req, res) => {
     const blockchain = new Blockchain()
 
-    if (req.body.body === ''|| req.body.body === undefined) {
+    if (req.body.body === '' || req.body.body === undefined) {
         res.status(400).json({"status": 400, message: "Fill the body parameter"})
     }
 
