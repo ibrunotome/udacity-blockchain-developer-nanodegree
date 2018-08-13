@@ -17,8 +17,8 @@ app.get('/', (req, res) => res.send('Accepted endpoints: POST /block or GET /blo
  */
 app.get('/block/:height', async (req, res) => {
   try {
-    const response = await chain.getBlock(req.params.height);
-    res.send(response);
+    const response = await chain.getBlock(req.params.height)
+    res.send(response)
   } catch (error) {
     res.status(404).json({
       "status": 404,
@@ -38,9 +38,9 @@ app.post('/block', async (req, res) => {
     })
   }
 
-  await chain.addBlock(new Block(req.body.body));
-  const height = await chain.getBlockHeight();
-  const response = await chain.getBlock(height);
+  await chain.addBlock(new Block(req.body.body))
+  const height = await chain.getBlockHeight()
+  const response = await chain.getBlock(height)
 
-  res.send(response);
+  res.send(response)
 })
