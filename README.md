@@ -10,7 +10,7 @@ Learn to create your identity on the Blockchain and interact with an existing we
 
 Building your own Private Blockchain utilizing Node.js with LevelDB.
 
-### 3. RESTful Web API with Node.js Framework 🔄
+### 3. RESTful Web API with Node.js Framework ✅
 
 We solved the challenge to persist our blockchain dataset. Our next challenge is to build a RESTful web API using a Node.js framework that will interface with your private blockchain.
 
