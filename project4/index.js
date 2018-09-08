@@ -7,9 +7,7 @@ const bodyParser = require('body-parser')
 const Block = require('./block')
 const Blockchain = require('./blockchain')
 const chain = new Blockchain()
-const level = require('level')
-const chainDB = './data/star'
-const db = level(chainDB)
+const db = require('level')('./data/star')
 const bitcoinMessage = require('bitcoinjs-message')
 
 app.listen(8000, () => console.log('API listening on port 8000'))
@@ -103,44 +101,33 @@ app.get('/block/:height', async (req, res) => {
 })
 
 /**
- * Criteria: POST Block endpoint using key/value pair within request body. Preferred URL path http://localhost:8000/block
+ * Criteria: Star registration Endpoint
  */
 app.post('/block', async (req, res) => {
-  if (!req.body.address || !req.body.star) {
+  try {
+    const StarValidation = require('./star-validation')
+    const starValidation = new StarValidation(req)
+
+    starValidation.validateNewStarRequest()
+    const isValid = await starValidation.validateAuthorization(db)
+
+    if (!isValid) {
+      throw 'Signature is not valid or timestamp expired'
+    }
+
+  } catch (error) {
     res.status(400).json({
-      "status": 400,
-      message: "Fill the address and star parameters"
+      status: 400,
+      message: error
     })
+
+    console.log(error)
+
+    return
   }
 
   const body = { address, star } = req.body
-  const { dec, ra, story } = star
-
-  // Validate ra, dec, story 
-  if (typeof dec !== 'string' || typeof ra !== 'string' || typeof story !== 'string' || !dec.length || !ra.length || !story.length) {
-    return res.status(400).json({
-        reason: 'Bad request',
-        details: "Your star information should include non-empty string properties 'dec', 'ra' and 'story'"
-    })
-  }
-
-  // Validate if story length less than 500 bytes
-  if (new Buffer(story).length > 500) {
-    return res.status(400).json({
-        reason: 'Bad request',
-        details: 'Your star story too is long. Maximum size is 500 bytes'
-    })
-  }
-
-  // Check if string contains only ASCII symbols (0-126 char codes)
-  const isASCII = ((str) =>  /^[\x00-\x7F]*$/.test(str))
-
-  if (!isASCII(story)) {
-    return res.status(400).json({
-        reason: 'Bad request',
-        details: 'Your star story contains non-ASCII symbols'
-    })
-  }
+  const story = star.story
 
   body.star.story = new Buffer(story).toString('hex')
 
