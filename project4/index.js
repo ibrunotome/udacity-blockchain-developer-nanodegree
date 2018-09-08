@@ -12,8 +12,25 @@ app.listen(8000, () => console.log('API listening on port 8000'))
 app.use(bodyParser.json())
 app.get('/', (req, res) => res.status(404).json({
   "status": 404,
-  "message": "Accepted endpoints: POST /block or GET /block/{BLOCK_HEIGHT}"
+  "message": "Check the README.md for the accepted endpoints"
 }))
+
+app.post('/requestValidation', async (req, res) => {
+  const address = req.body.address
+  const timestamp = new Date()
+    .getTime()
+    .toString()
+    .slice(0, -3)
+
+  const message = `${address}:${timestamp}:starRegistry`
+  const validationWindow = 300
+
+  res.json({
+    message,
+    timestamp,
+    validationWindow
+  })
+})
 
 /**
  * Criteria: GET Block endpoint using URL path with block height parameter. Preferred URL path http://localhost:8000/block/{BLOCK_HEIGHT}

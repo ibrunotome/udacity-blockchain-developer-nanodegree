@@ -1,7 +1,7 @@
 {
-  "name": "project3",
+  "name": "project4",
   "version": "1.0.0",
-  "description": "RESTful Web API with Node.js Framework",
+  "description": "Build a Private Blockchain Notary Service",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

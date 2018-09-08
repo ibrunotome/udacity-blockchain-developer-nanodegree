@@ -5,7 +5,7 @@ const Block = require('./block')
  * Criteria: Configure simpleChain.js with levelDB to persist blockchain dataset using the level Node.js library.
  */
 const level = require('level')
-const chainDB = './chaindata'
+const chainDB = './data/chain'
 const db = level(chainDB)
 
 class Blockchain {
