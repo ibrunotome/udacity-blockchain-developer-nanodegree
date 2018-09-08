@@ -7,8 +7,7 @@ const bodyParser = require('body-parser')
 const Block = require('./block')
 const Blockchain = require('./blockchain')
 const chain = new Blockchain()
-const db = require('level')('./data/star')
-const bitcoinMessage = require('bitcoinjs-message')
+const StarValidation = require('./star-validation')
 
 app.listen(8000, () => console.log('API listening on port 8000'))
 app.use(bodyParser.json())
@@ -21,68 +20,57 @@ app.get('/', (req, res) => res.status(404).json({
  * Criteria: Web API post endpoint validates request with JSON response.
  */
 app.post('/requestValidation', async (req, res) => {
-  if (!req.body.address) {
+  const starValidation = new StarValidation(req)
+
+  try {
+    starValidation.validateAddressParameter()
+  } catch (error) {
     res.status(400).json({
-      "status": 400,
-      message: "Fill the address parameter"
+      status: 400,
+      message: error
     })
+
+    return
   }
 
   const address = req.body.address
   const timestamp = Date.now()
-
   const message = `${address}:${timestamp}:starRegistry`
   const validationWindow = 300
 
-  const response = {
+  const data = {
     "address": address,
     "message": message,
     "timestamp": timestamp,
     "validationWindow": validationWindow
   }
 
-  db.put(address, JSON.stringify(response))
+  starValidation.addAddress(data)
 
-  res.json(response)
+  res.json(data)
 })
 
 /**
  * Criteria: Web API post endpoint validates message signature with JSON response.
  */
 app.post('/message-signature/validate', async (req, res) => {
-  if (!req.body.address || !req.body.signature) {
+  const starValidation = new StarValidation(req)
+
+  try {
+    starValidation.validateAddressAndSignatureParameters()
+  } catch (error) {
     res.status(400).json({
-      "status": 400,
-      message: "Fill the address and signature parameters"
+      status: 400,
+      message: error
     })
+
+    return
   }
 
   const { address, signature } = req.body
+  const response = await starValidation.validateMessageSignature(address, signature)
 
-  db.get(address)
-    .then((value) => {
-        value = JSON.parse(value)
-
-        const nowSubFiveMinutes = Date.now() - (5 * 60 * 1000)
-        const isExpired = value.timestamp < nowSubFiveMinutes
-        let isValid = false
-
-        if (isExpired) {
-            value.validationWindow = 0
-            value.messageSignature = 'Validation window was expired'
-        } else {
-            value.validationWindow = Math.floor((value.timestamp - nowSubFiveMinutes) / 1000) 
-            isValid = bitcoinMessage.verify(value.message, address, signature)
-            value.messageSignature = isValid ? 'valid' : 'invalid'
-        }
-
-        db.put(address, JSON.stringify(value))
-
-        res.json({
-            registerStar: !isExpired && isValid,
-            status: value
-        })
-    })
+  res.json(response)
 })
 
 /**
@@ -94,8 +82,8 @@ app.get('/block/:height', async (req, res) => {
     res.send(response)
   } catch (error) {
     res.status(404).json({
-      "status": 404,
-      "message": "Block not found"
+      status: 404,
+      message: 'Block not found'
     })
   }
 })
@@ -104,12 +92,11 @@ app.get('/block/:height', async (req, res) => {
  * Criteria: Star registration Endpoint
  */
 app.post('/block', async (req, res) => {
-  try {
-    const StarValidation = require('./star-validation')
-    const starValidation = new StarValidation(req)
+  const starValidation = new StarValidation(req)
 
+  try {
     starValidation.validateNewStarRequest()
-    const isValid = await starValidation.validateAuthorization(db)
+    const isValid = await starValidation.isValid()
 
     if (!isValid) {
       throw 'Signature is not valid or timestamp expired'
@@ -120,8 +107,6 @@ app.post('/block', async (req, res) => {
       status: 400,
       message: error
     })
-
-    console.log(error)
 
     return
   }
