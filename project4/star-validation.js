@@ -43,9 +43,6 @@ class StarValidation {
     }
   }
 
-  /**
-   * Check whether wallet address is authorized for register a new star 
-   */
   isValid() {
     return db.get(this.req.body.address)
       .then((value) => {
@@ -65,8 +62,10 @@ class StarValidation {
   async validateMessageSignature(address, signature) {
     return new Promise((resolve, reject) => {
       db.get(address, (error, value) => {
-        if (error) {
-          reject(error)
+        if (value === undefined) {
+          return reject('Not found')
+        } else if (error) {
+          return reject(error)
         }
 
         value = JSON.parse(value)
@@ -84,9 +83,9 @@ class StarValidation {
             value.messageSignature = isValid ? 'valid' : 'invalid'
         }
 
-        db.put(address, JSON.stringify(value))
+        this.addAddress(value)
 
-        resolve({
+        return resolve({
             registerStar: !isExpired && isValid,
             status: value
         })

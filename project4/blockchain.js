@@ -133,10 +133,10 @@ class Blockchain {
   async getBlockByHeight(key) {
     return new Promise((resolve, reject) => {
       db.get(key, (error, value) => {
-        if (error) {
-          return reject(error)
-        } else if (value === undefined) {
+        if (value === undefined) {
           return reject('Not found')
+        } else if (error) {
+          return reject(error)
         }
 
         value = JSON.parse(value)

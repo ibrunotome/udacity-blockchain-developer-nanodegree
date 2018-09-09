@@ -54,7 +54,7 @@ app.post('/message-signature/validate', async (req, res) => {
   const starValidation = new StarValidation(req)
 
   try {
-    starValidation.validateAddressAndSignatureParameters()
+    starValidation.validateAddressAndSignatureParameters()  
   } catch (error) {
     res.status(400).json({
       status: 400,
@@ -64,10 +64,17 @@ app.post('/message-signature/validate', async (req, res) => {
     return
   }
 
-  const { address, signature } = req.body
-  const response = await starValidation.validateMessageSignature(address, signature)
+  try {
+    const { address, signature } = req.body
+    const response = await starValidation.validateMessageSignature(address, signature)
 
-  res.json(response)
+    res.json(response)
+  } catch (error) {
+    res.status(404).json({
+      status: 404,
+      message: error
+    })
+  }
 })
 
 /**
