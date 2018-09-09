@@ -1,6 +1,3 @@
-/**
- * Criteria: Configure private blockchain project to include a RESTful API with Node.js framework running on port 8000.
- */
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
@@ -74,7 +71,7 @@ app.post('/message-signature/validate', async (req, res) => {
 })
 
 /**
- * Criteria: GET Block endpoint using URL path with block height parameter. Preferred URL path http://localhost:8000/block/{BLOCK_HEIGHT}
+ * Criteria: Get star block by star block height with JSON response.
  */
 app.get('/block/:height', async (req, res) => {
   try {

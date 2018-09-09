@@ -1,3 +1,5 @@
 node_modules
 data/chain
 data/star
+.env
+signature.txt

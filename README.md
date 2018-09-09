@@ -1,5 +1,7 @@
 # Blockchain Developer Nanodegree
 
+[![Build Status](https://semaphoreci.com/api/v1/ibrunotome/udacity-blockchain-developer-nanodegree/branches/master/badge.svg)](https://semaphoreci.com/ibrunotome/udacity-blockchain-developer-nanodegree)
+
 ## Projects
 
 ### 1. Manage Your Blockchain Identity ✅
