@@ -24,7 +24,7 @@ test.cb('1. /requestValidation: should return a message with validation window',
       t.is(response.status, 200)
       t.is(response.body.address, address)
       t.is(response.body.validationWindow, 300)
-      t.hasOwnProperty('timestamp')
+      t.hasOwnProperty('requestTimeStamp')
       t.hasOwnProperty('message')
 
       const message = response.body.message

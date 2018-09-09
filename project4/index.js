@@ -38,7 +38,7 @@ app.post('/requestValidation', async (req, res) => {
   const data = {
     "address": address,
     "message": message,
-    "timestamp": timestamp,
+    "requestTimeStamp": timestamp,
     "validationWindow": validationWindow
   }
 
@@ -68,7 +68,11 @@ app.post('/message-signature/validate', async (req, res) => {
     const { address, signature } = req.body
     const response = await starValidation.validateMessageSignature(address, signature)
 
-    res.json(response)
+    if (response.registerStar) {
+      res.json(response)
+    } else {
+      res.status(400).json(response)
+    }
   } catch (error) {
     res.status(404).json({
       status: 404,
@@ -138,7 +142,7 @@ app.post('/block', async (req, res) => {
     const isValid = await starValidation.isValid()
 
     if (!isValid) {
-      throw 'Signature is not valid or timestamp expired'
+      throw 'Signature is not valid'
     }
   } catch (error) {
     res.status(400).json({
