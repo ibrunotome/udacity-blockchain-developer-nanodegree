@@ -15,7 +15,7 @@ const keyPair = bitcoin.ECPair.makeRandom()
 const privateKey = keyPair.d.toBuffer(32)
 const address = keyPair.getAddress()
 
-test.cb('1. requestValidation: should return a message with validation window', (t) => {
+test.cb('1. /requestValidation: should return a message with validation window', (t) => {
   supertest(BASE_URL)
     .post('/requestValidation')
     .send({address: address})
@@ -37,7 +37,7 @@ test.cb('1. requestValidation: should return a message with validation window', 
     .end(t.end)
 })
 
-test.cb('2. message-signature/validate: should return a valid register star request', (t) => {
+test.cb('2. /message-signature/validate: should return a valid register star request', (t) => {
   setTimeout(() => {
     const signature = fs.readFileSync('signature.txt').toString() 
 
@@ -54,4 +54,28 @@ test.cb('2. message-signature/validate: should return a valid register star requ
       })
       .end(t.end)
   }, 1000)
+})
+
+test.cb('3. /block: should return the new block added', (t) => {
+  setTimeout(() => {
+    supertest(BASE_URL)
+      .post('/block')
+      .send({
+        address: address, 
+        star: {
+          dec: "-26° 29' 24.9", 
+          ra: "16h 29m 1.0s", 
+          story: `Test story of address ${address}`}
+        }
+      )
+      .expect(200)
+      .expect((response) => {
+        t.hasOwnProperty('hash')
+        t.hasOwnProperty('height')
+        t.hasOwnProperty('body')
+        t.hasOwnProperty('time')
+        t.hasOwnProperty('previousBlockHash')
+      })
+      .end(t.end)
+  }, 2000)
 })
