@@ -127,7 +127,7 @@ height - The height of block
 
 <img src="https://albumizr.com/ia/f9f60c3e3ccaea83067312a94de2fb15.jpg">
 
-### 5. Get block by address
+### 6. Get block by address
 
 **Method**
 
