@@ -174,3 +174,12 @@ hash - The hash of one block created before
 **Example**
 
 <img src="https://albumizr.com/ia/f4c59f431b1d75e54b5b0acb034a9a75.jpg">
+
+## Udacity honor code
+
+Giving credits for places that helped me to do this project
+
+- Udacity Project4 Concepts section
+- Udacity slack of nanodegree
+- https://github.com/bitcoinjs/bitcoinjs-message
+- https://bitcoin.stackexchange.com/questions/49946/understanding-signing-messages-with-bitcoinjs-lib
