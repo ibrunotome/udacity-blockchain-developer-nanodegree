@@ -115,3 +115,19 @@ test.cb('5. /stars/hash:hash: should return the block by hash', (t) => {
       .end(t.end)
   }, 3000)
 })
+
+test.cb('6. /stars/address:address: should return the block by address', (t) => {
+  setTimeout(() => {
+    supertest(BASE_URL)
+      .get(`/stars/address:${address}`)
+      .expect(200)
+      .expect((response) => {
+        t.hasOwnProperty('hash')
+        t.hasOwnProperty('height')
+        t.hasOwnProperty('body')
+        t.hasOwnProperty('time')
+        t.hasOwnProperty('previousBlockHash')
+      })
+      .end(t.end)
+  }, 3000)
+})
