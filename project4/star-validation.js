@@ -47,10 +47,7 @@ class StarValidation {
     return db.get(this.req.body.address)
       .then((value) => {
         value = JSON.parse(value)
-        const nowSubFiveMinutes = Date.now() - (5 * 60 * 1000)
-        const isExpired = value.timestamp < nowSubFiveMinutes
-
-        return !isExpired && value.messageSignature === 'valid'
+        return value.messageSignature === 'valid'
       })
       .catch(() => {throw 'Not authorized'})
   }
