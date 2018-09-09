@@ -56,7 +56,7 @@ class Blockchain {
    * @param {int} blockHeight 
    */
   async getBlock(blockHeight) {
-    return JSON.parse(await this.getBlockFromDB(blockHeight))
+    return await this.getBlockByHeight(blockHeight)
   }
 
   /**
@@ -65,17 +65,17 @@ class Blockchain {
    * @param {int} blockHeight 
    */
   async validateBlock(blockHeight) {
-    let block = await this.getBlock(blockHeight);
-    let blockHash = block.hash;
-    block.hash = '';
+    let block = await this.getBlock(blockHeight)
+    const blockHash = block.hash
+    block.hash = ''
     
-    let validBlockHash = SHA256(JSON.stringify(block)).toString();
+    let validBlockHash = SHA256(JSON.stringify(block)).toString()
 
     if (blockHash === validBlockHash) {
-        return true;
+        return true
       } else {
-        console.log(`Block #${blockHeight} invalid hash: ${blockHash} <> ${validBlockHash}`);
-        return false;
+        console.log(`Block #${blockHeight} invalid hash: ${blockHash} <> ${validBlockHash}`)
+        return false
       }
   }
 
@@ -117,41 +117,95 @@ class Blockchain {
 
   // Level db functions
 
-  addBlockToDB(key, value) {
+  async addBlockToDB(key, value) {
     return new Promise((resolve, reject) => {
       db.put(key, value, (error) => {
         if (error) {
-          reject(error)
+          return reject(error)
         }
 
         console.log(`Added block #${key}`)
-        resolve(`Added block #${key}`)
+        return resolve(`Added block #${key}`)
       })
     })
   }
 
-  getBlockFromDB(key) {
+  async getBlockByHeight(key) {
     return new Promise((resolve, reject) => {
       db.get(key, (error, value) => {
         if (error) {
-          reject(error)
+          return reject(error)
+        } else if (value === undefined) {
+          return reject('Not found')
         }
 
-        resolve(value)
+        value = JSON.parse(value)
+
+        if (parseInt(key) > 0) {
+          value.body.star.storyDecoded = new Buffer(value.body.star.story, 'hex').toString()
+        }
+
+        return resolve(value)
       })
     })
   }
 
-  getBlockHeightFromDB() {
+  async getBlockHeightFromDB() {
     return new Promise((resolve, reject) => {
       let height = -1
 
       db.createReadStream().on('data', (data) => {
         height++
       }).on('error', (error) => {
-        reject(error)
+        return reject(error)
       }).on('close', () => {
-        resolve(height)
+        return resolve(height)
+      })
+    })
+  }
+
+  async getBlockByHash(hash) {
+    let block
+
+    return new Promise((resolve, reject) => {
+      db.createReadStream().on('data', (data) => {    
+        block = JSON.parse(data.value)
+        
+        if (block.hash === hash) {
+          if (parseInt(data.key) > 0) {
+            block.body.star.storyDecoded = new Buffer(block.body.star.story, 'hex').toString()
+            return resolve(block)
+          } else {
+            return resolve(block)
+          }
+        }
+      }).on('error', (error) => {
+        return reject(error)
+      }).on('close', () => {
+        return reject('Not found')
+      })
+    })
+  }
+  
+  async getBlocksByAddress(address) {
+    const blocks = []
+    let block
+
+    return new Promise((resolve, reject) => {
+      db.createReadStream().on('data', (data) => {
+        // Don't check the genesis block
+        if (parseInt(data.key) > 0) {
+          block = JSON.parse(data.value)
+
+          if (block.body.address === address) {
+            block.body.star.storyDecoded = new Buffer(block.body.star.story, 'hex').toString()
+            blocks.push(block)
+          }
+        }
+      }).on('error', (error) => {
+        return reject(error)
+      }).on('close', () => {
+        return resolve(blocks)
       })
     })
   }

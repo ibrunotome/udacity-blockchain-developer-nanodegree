@@ -79,6 +79,41 @@ app.post('/message-signature/validate', async (req, res) => {
 app.get('/block/:height', async (req, res) => {
   try {
     const response = await chain.getBlock(req.params.height)
+
+    res.send(response)
+  } catch (error) {
+    res.status(404).json({
+      status: 404,
+      message: 'Block not found'
+    })
+  }
+})
+
+/**
+ * Criteria: Get star block by wallet address (blockchain identity) with JSON response.
+ */
+app.get('/stars/address:address', async (req, res) => {
+  try {
+    const address = req.params.address.slice(1)
+    const response = await chain.getBlocksByAddress(address)
+
+    res.send(response)
+  } catch (error) {
+    res.status(404).json({
+      status: 404,
+      message: 'Block not found'
+    })
+  }
+})
+
+/**
+ * Criteria: Get star block by hash with JSON response.
+ */
+app.get('/stars/hash:hash', async (req, res) => {
+  try {
+    const hash = req.params.hash.slice(1)
+    const response = await chain.getBlockByHash(hash)
+
     res.send(response)
   } catch (error) {
     res.status(404).json({
@@ -101,7 +136,6 @@ app.post('/block', async (req, res) => {
     if (!isValid) {
       throw 'Signature is not valid or timestamp expired'
     }
-
   } catch (error) {
     res.status(400).json({
       status: 400,
