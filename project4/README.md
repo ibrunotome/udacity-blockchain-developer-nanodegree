@@ -1,3 +1,7 @@
+## Build status
+
+[![Build Status](https://semaphoreci.com/api/v1/ibrunotome/udacity-blockchain-developer-nanodegree/branches/master/badge.svg)](https://semaphoreci.com/ibrunotome/udacity-blockchain-developer-nanodegree)
+
 ## Project overview
 
 Your web service will provide a few new features to your users. The goal is to allow users to notarize star ownership using their blockchain identity.

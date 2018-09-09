@@ -52,6 +52,10 @@ class StarValidation {
       .catch(() => {throw 'Not authorized'})
   }
 
+  invalidate(address) {
+    db.del(address)
+  }
+
   addAddress(data) {
     db.put(data.address, JSON.stringify(data))
   }
@@ -68,14 +72,14 @@ class StarValidation {
         value = JSON.parse(value)
 
         const nowSubFiveMinutes = Date.now() - (5 * 60 * 1000)
-        const isExpired = value.timestamp < nowSubFiveMinutes
+        const isExpired = value.requestTimeStamp < nowSubFiveMinutes
         let isValid = false
 
         if (isExpired) {
             value.validationWindow = 0
             value.messageSignature = 'Validation window was expired'
         } else {
-            value.validationWindow = Math.floor((value.timestamp - nowSubFiveMinutes) / 1000) 
+            value.validationWindow = Math.floor((value.requestTimeStamp - nowSubFiveMinutes) / 1000) 
             isValid = bitcoinMessage.verify(value.message, address, signature)
             value.messageSignature = isValid ? 'valid' : 'invalid'
         }
