@@ -36,7 +36,11 @@ npm install
 
 ## Testing
 
-Run the server:
+```
+npm test
+```
+
+Or run the server:
 
 ```
 node index.js
