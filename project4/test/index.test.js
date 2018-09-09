@@ -79,3 +79,19 @@ test.cb('3. /block: should return the new block added', (t) => {
       .end(t.end)
   }, 2000)
 })
+
+test.cb('4. /block/height: should return the block by height', (t) => {
+  setTimeout(() => {
+    supertest(BASE_URL)
+      .get('/block/1')
+      .expect(200)
+      .expect((response) => {
+        t.hasOwnProperty('hash')
+        t.hasOwnProperty('height')
+        t.hasOwnProperty('body')
+        t.hasOwnProperty('time')
+        t.hasOwnProperty('previousBlockHash')
+      })
+      .end(t.end)
+  }, 3000)
+})
