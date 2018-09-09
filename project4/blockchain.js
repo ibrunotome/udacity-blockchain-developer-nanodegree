@@ -4,9 +4,7 @@ const Block = require('./block')
 /**
  * Criteria: Configure simpleChain.js with levelDB to persist blockchain dataset using the level Node.js library.
  */
-const level = require('level')
-const chainDB = './data/chain'
-const db = level(chainDB)
+const db = require('level')('./data/chain')
 
 class Blockchain {
   constructor() {
@@ -130,6 +128,20 @@ class Blockchain {
     })
   }
 
+  async getBlockHeightFromDB() {
+    return new Promise((resolve, reject) => {
+      let height = -1
+
+      db.createReadStream().on('data', (data) => {
+        height++
+      }).on('error', (error) => {
+        return reject(error)
+      }).on('close', () => {
+        return resolve(height)
+      })
+    })
+  }
+  
   async getBlockByHeight(key) {
     return new Promise((resolve, reject) => {
       db.get(key, (error, value) => {
@@ -146,20 +158,6 @@ class Blockchain {
         }
 
         return resolve(value)
-      })
-    })
-  }
-
-  async getBlockHeightFromDB() {
-    return new Promise((resolve, reject) => {
-      let height = -1
-
-      db.createReadStream().on('data', (data) => {
-        height++
-      }).on('error', (error) => {
-        return reject(error)
-      }).on('close', () => {
-        return resolve(height)
       })
     })
   }

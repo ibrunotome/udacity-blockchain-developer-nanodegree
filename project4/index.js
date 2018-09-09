@@ -158,5 +158,5 @@ app.post('/block', async (req, res) => {
   const height = await chain.getBlockHeight()
   const response = await chain.getBlock(height)
 
-  res.send(response)
+  res.status(201).send(response)
 })

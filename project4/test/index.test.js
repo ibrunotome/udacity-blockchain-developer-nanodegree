@@ -68,7 +68,7 @@ test.cb('3. /block: should return the new block added', (t) => {
           story: `Test story of address ${address}`}
         }
       )
-      .expect(200)
+      .expect(201)
       .expect((response) => {
         t.hasOwnProperty('hash')
         t.hasOwnProperty('height')

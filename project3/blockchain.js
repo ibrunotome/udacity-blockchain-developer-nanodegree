@@ -4,9 +4,7 @@ const Block = require('./block')
 /**
  * Criteria: Configure simpleChain.js with levelDB to persist blockchain dataset using the level Node.js library.
  */
-const level = require('level')
-const chainDB = './chaindata'
-const db = level(chainDB)
+const db = require('level')('./data/chain')
 
 class Blockchain {
   constructor() {
@@ -56,7 +54,7 @@ class Blockchain {
    * @param {int} blockHeight 
    */
   async getBlock(blockHeight) {
-    return JSON.parse(await this.getBlockFromDB(blockHeight))
+    return await this.getBlockByHeight(blockHeight)
   }
 
   /**
@@ -65,17 +63,17 @@ class Blockchain {
    * @param {int} blockHeight 
    */
   async validateBlock(blockHeight) {
-    let block = await this.getBlock(blockHeight);
-    let blockHash = block.hash;
-    block.hash = '';
+    let block = await this.getBlock(blockHeight)
+    const blockHash = block.hash
+    block.hash = ''
     
-    let validBlockHash = SHA256(JSON.stringify(block)).toString();
+    let validBlockHash = SHA256(JSON.stringify(block)).toString()
 
     if (blockHash === validBlockHash) {
-        return true;
+        return true
       } else {
-        console.log(`Block #${blockHeight} invalid hash: ${blockHash} <> ${validBlockHash}`);
-        return false;
+        console.log(`Block #${blockHeight} invalid hash: ${blockHash} <> ${validBlockHash}`)
+        return false
       }
   }
 
@@ -117,41 +115,45 @@ class Blockchain {
 
   // Level db functions
 
-  addBlockToDB(key, value) {
+  async addBlockToDB(key, value) {
     return new Promise((resolve, reject) => {
       db.put(key, value, (error) => {
         if (error) {
-          reject(error)
+          return reject(error)
         }
 
         console.log(`Added block #${key}`)
-        resolve(`Added block #${key}`)
+        return resolve(`Added block #${key}`)
       })
     })
   }
 
-  getBlockFromDB(key) {
-    return new Promise((resolve, reject) => {
-      db.get(key, (error, value) => {
-        if (error) {
-          reject(error)
-        }
-
-        resolve(value)
-      })
-    })
-  }
-
-  getBlockHeightFromDB() {
+  async getBlockHeightFromDB() {
     return new Promise((resolve, reject) => {
       let height = -1
 
       db.createReadStream().on('data', (data) => {
         height++
       }).on('error', (error) => {
-        reject(error)
+        return reject(error)
       }).on('close', () => {
-        resolve(height)
+        return resolve(height)
+      })
+    })
+  }
+
+  async getBlockByHeight(key) {
+    return new Promise((resolve, reject) => {
+      db.get(key, (error, value) => {
+        if (value === undefined) {
+          return reject('Not found')
+        } else if (error) {
+          return reject(error)
+        }
+
+        value = JSON.parse(value)
+
+        return resolve(value)
       })
     })
   }
