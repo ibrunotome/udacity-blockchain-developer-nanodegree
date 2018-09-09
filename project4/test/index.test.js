@@ -32,14 +32,14 @@ test.cb('1. /requestValidation: should return a message with validation window',
       console.log(`Signature: ${signature}`)
       console.log(`Is valid: ${bitcoinMessage.verify(message, address, signature)}`)
 
-      fs.writeFileSync('signature.txt', signature)
+      fs.writeFileSync('./data/signature.txt', signature)
     })
     .end(t.end)
 })
 
 test.cb('2. /message-signature/validate: should return a valid register star request', (t) => {
   setTimeout(() => {
-    const signature = fs.readFileSync('signature.txt').toString() 
+    const signature = fs.readFileSync('./data/signature.txt').toString() 
 
     console.log(`Address: ${address}`)
     console.log(`Signature: ${signature}`)
@@ -75,6 +75,8 @@ test.cb('3. /block: should return the new block added', (t) => {
         t.hasOwnProperty('body')
         t.hasOwnProperty('time')
         t.hasOwnProperty('previousBlockHash')
+
+        fs.writeFileSync('./data/hash.txt', response.body.hash)
       })
       .end(t.end)
   }, 2000)
@@ -84,6 +86,24 @@ test.cb('4. /block/height: should return the block by height', (t) => {
   setTimeout(() => {
     supertest(BASE_URL)
       .get('/block/1')
+      .expect(200)
+      .expect((response) => {
+        t.hasOwnProperty('hash')
+        t.hasOwnProperty('height')
+        t.hasOwnProperty('body')
+        t.hasOwnProperty('time')
+        t.hasOwnProperty('previousBlockHash')
+      })
+      .end(t.end)
+  }, 3000)
+})
+
+test.cb('5. /stars/hash:hash: should return the block by hash', (t) => {
+  setTimeout(() => {
+    const hash = fs.readFileSync('./data/hash.txt').toString() 
+
+    supertest(BASE_URL)
+      .get(`/stars/hash:${hash}`)
       .expect(200)
       .expect((response) => {
         t.hasOwnProperty('hash')
