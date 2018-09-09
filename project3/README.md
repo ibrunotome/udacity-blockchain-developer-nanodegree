@@ -26,7 +26,7 @@ https://review.udacity.com/#!/rubrics/1707/view
 
 Express.js
 
-## Getting Started
+## Getting started
 
 Open a command prompt or shell terminal after install node.js and execute:
 
