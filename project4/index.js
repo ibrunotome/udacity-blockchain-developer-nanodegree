@@ -1,3 +1,4 @@
+const compression = require('compression')
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
@@ -6,11 +7,12 @@ const Blockchain = require('./blockchain')
 const chain = new Blockchain()
 const StarValidation = require('./star-validation')
 
+app.use(compression())
 app.listen(8000, () => console.log('API listening on port 8000'))
 app.use(bodyParser.json())
 app.get('/', (req, res) => res.status(404).json({
-  "status": 404,
-  "message": "Check the README.md for the accepted endpoints"
+  status: 404,
+  message: 'Check the README.md for the accepted endpoints'
 }))
 
 /**
@@ -36,13 +38,13 @@ app.post('/requestValidation', async (req, res) => {
   const validationWindow = 300
 
   const data = {
-    "address": address,
-    "message": message,
-    "requestTimeStamp": timestamp,
-    "validationWindow": validationWindow
+    address: address,
+    message: message,
+    requestTimeStamp: timestamp,
+    validationWindow: validationWindow
   }
 
-  starValidation.addAddress(data)
+  starValidation.save(data)
 
   res.json(data)
 })
@@ -54,7 +56,7 @@ app.post('/message-signature/validate', async (req, res) => {
   const starValidation = new StarValidation(req)
 
   try {
-    starValidation.validateAddressAndSignatureParameters()  
+    starValidation.validateAddressAndSignatureParameters()
   } catch (error) {
     res.status(400).json({
       status: 400,
@@ -71,7 +73,7 @@ app.post('/message-signature/validate', async (req, res) => {
     if (response.registerStar) {
       res.json(response)
     } else {
-      res.status(400).json(response)
+      res.status(401).json(response)
     }
   } catch (error) {
     res.status(404).json({
@@ -142,11 +144,11 @@ app.post('/block', async (req, res) => {
     const isValid = await starValidation.isValid()
 
     if (!isValid) {
-      throw 'Signature is not valid'
+      throw ('Signature is not valid')
     }
   } catch (error) {
-    res.status(400).json({
-      status: 400,
+    res.status(401).json({
+      status: 401,
       message: error
     })
 

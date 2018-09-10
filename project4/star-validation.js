@@ -56,7 +56,7 @@ class StarValidation {
     db.del(address)
   }
 
-  addAddress(data) {
+  save(data) {
     db.put(data.address, JSON.stringify(data))
   }
 
@@ -84,7 +84,7 @@ class StarValidation {
             value.messageSignature = isValid ? 'valid' : 'invalid'
         }
 
-        this.addAddress(value)
+        this.save(value)
 
         return resolve({
             registerStar: !isExpired && isValid,

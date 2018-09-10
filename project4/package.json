@@ -14,13 +14,20 @@
   },
   "dependencies": {
     "bitcoinjs-message": "^2.0.0",
+    "compression": "^1.7.3",
     "crypto-js": "^3.1.9-1",
     "express": "^4.16.3",
     "level": "^4.0.0"
   },
   "devDependencies": {
-    "bitcoinjs-lib": "2.3.0",
     "ava": "0.25.0",
+    "bitcoinjs-lib": "2.3.0",
+    "eslint": "^5.5.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-node": "^7.0.1",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
     "supertest": "^3.2.0"
   }
 }

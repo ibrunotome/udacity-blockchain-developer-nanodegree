@@ -7,23 +7,23 @@ const Block = require('./block')
 const db = require('level')('./data/chain')
 
 class Blockchain {
-  constructor() {
+  constructor () {
     /**
      * Criteria: Genesis block persist as the first block in the blockchain using LevelDB.
      */
     this.getBlockHeight().then((height) => {
       if (height === -1) {
-        this.addBlock(new Block("Genesis block")).then(() => console.log("Genesis block added!"))
+        this.addBlock(new Block('Genesis block')).then(() => console.log('Genesis block added!'))
       }
     })
   }
 
   /**
    * Criteria: addBlock(newBlock) function includes a method to store newBlock with LevelDB.
-   * 
-   * @param {Block} newBlock 
+   *
+   * @param {Block} newBlock
    */
-  async addBlock(newBlock) {
+  async addBlock (newBlock) {
     const height = parseInt(await this.getBlockHeight())
 
     newBlock.height = height + 1
@@ -44,7 +44,7 @@ class Blockchain {
   /**
    * Criteria: Modify getBlockHeight() function to retrieve current block height within the LevelDB chain.
    */
-  async getBlockHeight() {
+  async getBlockHeight () {
     return await this.getBlockHeightFromDB()
   }
 
@@ -53,7 +53,7 @@ class Blockchain {
    * 
    * @param {int} blockHeight 
    */
-  async getBlock(blockHeight) {
+  async getBlock (blockHeight) {
     return await this.getBlockByHeight(blockHeight)
   }
 
@@ -62,7 +62,7 @@ class Blockchain {
    * 
    * @param {int} blockHeight 
    */
-  async validateBlock(blockHeight) {
+  async validateBlock (blockHeight) {
     let block = await this.getBlock(blockHeight)
     const blockHash = block.hash
     block.hash = ''
@@ -80,7 +80,7 @@ class Blockchain {
   /**
    * Criteria: Modify the validateChain() function to validate blockchain stored within levelDB.
    */
-  async validateChain() {
+  async validateChain () {
     let errorLog = []
     let previousHash = ''
     let isValidBlock = false
@@ -115,7 +115,7 @@ class Blockchain {
 
   // Level db functions
 
-  async addBlockToDB(key, value) {
+  async addBlockToDB (key, value) {
     return new Promise((resolve, reject) => {
       db.put(key, value, (error) => {
         if (error) {
@@ -128,7 +128,7 @@ class Blockchain {
     })
   }
 
-  async getBlockHeightFromDB() {
+  async getBlockHeightFromDB () {
     return new Promise((resolve, reject) => {
       let height = -1
 
@@ -142,7 +142,7 @@ class Blockchain {
     })
   }
   
-  async getBlockByHeight(key) {
+  async getBlockByHeight (key) {
     return new Promise((resolve, reject) => {
       db.get(key, (error, value) => {
         if (value === undefined) {
@@ -162,7 +162,7 @@ class Blockchain {
     })
   }
 
-  async getBlockByHash(hash) {
+  async getBlockByHash (hash) {
     let block
 
     return new Promise((resolve, reject) => {
@@ -185,7 +185,7 @@ class Blockchain {
     })
   }
   
-  async getBlocksByAddress(address) {
+  async getBlocksByAddress (address) {
     const blocks = []
     let block
 
