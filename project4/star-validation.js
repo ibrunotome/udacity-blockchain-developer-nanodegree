@@ -8,38 +8,39 @@ class StarValidation {
 
   validateAddressParameter() {
     if (!this.req.body.address) {
-      throw 'Fill the address parameter'
+      throw new Error('Fill the address parameter')
     }
 
     return true
   }
 
-  validateAddressAndSignatureParameters() {
-    if (!this.validateAddressParameter() || !this.req.body.signature) {
-      throw 'Fill the address and signature parameters'
+  validateSignatureParameter() {
+    if (!this.req.body.signature) {
+      throw new Error('Fill the signature parameter')
     }
   }
 
   validateNewStarRequest() {
+    const MAX_STORY_BYTES = 500
+    const { star } = this.req.body
+    const { dec, ra, story} = star
+
     if (!this.validateAddressParameter() || !this.req.body.star) {
-      throw 'Fill the address and star parameters'
+      throw new Error('Fill the address and star parameters')
     }
 
-    // Validate ra, dec, story 
-    if (typeof this.req.body.star.dec !== 'string' || typeof this.req.body.star.ra !== 'string' || typeof this.req.body.star.story !== 'string' || !this.req.body.star.dec.length || !this.req.body.star.ra.length || !this.req.body.star.story.length) {
-      throw "Your star information should include non-empty string properties 'dec', 'ra' and 'story'"
+    if (typeof dec !== 'string' || typeof ra !== 'string' || typeof story !== 'string' || !dec.length || !ra.length || !story.length) {
+      throw new Error("Your star information should include non-empty string properties 'dec', 'ra' and 'story'")
     }
 
-    // Validate if story length less than 500 bytes
-    if (new Buffer(this.req.body.star.story).length > 500) {
-      throw 'Your star story too is long. Maximum size is 500 bytes'
+    if (new Buffer(story).length > MAX_STORY_BYTES) {
+      throw new Error('Your star story too is long. Maximum size is 500 bytes')
     }
 
-    // Check if string contains only ASCII symbols (0-126 char codes)
-    const isASCII = ((str) =>  /^[\x00-\x7F]*$/.test(str))
+    const isASCII = ((str) => /^[\x00-\x7F]*$/.test(str))
 
-    if (!isASCII(this.req.body.star.story)) {
-      throw 'Your star story contains non-ASCII symbols'
+    if (!isASCII(story)) {
+      throw new Error('Your star story contains non-ASCII symbols')
     }
   }
 
@@ -49,22 +50,82 @@ class StarValidation {
         value = JSON.parse(value)
         return value.messageSignature === 'valid'
       })
-      .catch(() => {throw 'Not authorized'})
+      .catch(() => {throw new Error('Not authorized')})
   }
 
   invalidate(address) {
     db.del(address)
   }
 
-  save(data) {
-    db.put(data.address, JSON.stringify(data))
-  }
-
   async validateMessageSignature(address, signature) {
     return new Promise((resolve, reject) => {
       db.get(address, (error, value) => {
         if (value === undefined) {
-          return reject('Not found')
+          return reject(new Error('Not found'))
+        } else if (error) {
+          return reject(error)
+        }
+
+        value = JSON.parse(value)
+
+        if (value.messageSignature === 'valid') {
+          return resolve({
+            registerStar: true,
+            status: value
+        }) 
+        } else {
+          const nowSubFiveMinutes = Date.now() - (5 * 60 * 1000)
+          const isExpired = value.requestTimeStamp < nowSubFiveMinutes
+          let isValid = false
+  
+          if (isExpired) {
+              value.validationWindow = 0
+              value.messageSignature = 'Validation window was expired'
+          } else {
+              value.validationWindow = Math.floor((value.requestTimeStamp - nowSubFiveMinutes) / 1000) 
+  
+              try {
+                isValid = bitcoinMessage.verify(value.message, address, signature)
+              } catch (error) {
+                isValid = false
+              }
+            
+              value.messageSignature = isValid ? 'valid' : 'invalid'
+          }
+  
+          db.put(address, JSON.stringify(value))
+  
+          return resolve({
+              registerStar: !isExpired && isValid,
+              status: value
+          }) 
+        }
+      })
+    })
+  }
+
+  saveNewRequestValidation (address) {
+    const timestamp = Date.now()
+    const message = `${address}:${timestamp}:starRegistry`
+    const validationWindow = 300
+  
+    const data = {
+      address: address,
+      message: message,
+      requestTimeStamp: timestamp,
+      validationWindow: validationWindow
+    }
+  
+    db.put(data.address, JSON.stringify(data))
+
+    return data
+  }
+
+  async getPendingAddressRequest(address) {
+    return new Promise((resolve, reject) => {
+      db.get(address, (error, value) => {
+        if (value === undefined) {
+          return reject(new Error('Not found'))
         } else if (error) {
           return reject(error)
         }
@@ -73,23 +134,19 @@ class StarValidation {
 
         const nowSubFiveMinutes = Date.now() - (5 * 60 * 1000)
         const isExpired = value.requestTimeStamp < nowSubFiveMinutes
-        let isValid = false
 
         if (isExpired) {
-            value.validationWindow = 0
-            value.messageSignature = 'Validation window was expired'
+            resolve(this.saveNewRequestValidation(address))
         } else {
-            value.validationWindow = Math.floor((value.requestTimeStamp - nowSubFiveMinutes) / 1000) 
-            isValid = bitcoinMessage.verify(value.message, address, signature)
-            value.messageSignature = isValid ? 'valid' : 'invalid'
+          const data = {
+            address: address,
+            message: value.message,
+            requestTimeStamp: value.requestTimeStamp,
+            validationWindow: Math.floor((value.requestTimeStamp - nowSubFiveMinutes) / 1000)
+          }
+
+          resolve(data)
         }
-
-        this.save(value)
-
-        return resolve({
-            registerStar: !isExpired && isValid,
-            status: value
-        })
       })
     })
   }

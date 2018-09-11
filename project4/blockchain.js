@@ -1,16 +1,9 @@
 const SHA256 = require('crypto-js/sha256')
 const Block = require('./block')
-
-/**
- * Criteria: Configure simpleChain.js with levelDB to persist blockchain dataset using the level Node.js library.
- */
 const db = require('level')('./data/chain')
 
 class Blockchain {
   constructor () {
-    /**
-     * Criteria: Genesis block persist as the first block in the blockchain using LevelDB.
-     */
     this.getBlockHeight().then((height) => {
       if (height === -1) {
         this.addBlock(new Block('Genesis block')).then(() => console.log('Genesis block added!'))
@@ -19,8 +12,7 @@ class Blockchain {
   }
 
   /**
-   * Criteria: addBlock(newBlock) function includes a method to store newBlock with LevelDB.
-   *
+   * @description Criteria: addBlock(newBlock) function includes a method to store newBlock with LevelDB.
    * @param {Block} newBlock
    */
   async addBlock (newBlock) {
@@ -32,25 +24,22 @@ class Blockchain {
     if (newBlock.height > 0) {
       const prevBlock = await this.getBlock(height)
       newBlock.previousBlockHash = prevBlock.hash
-      console.log(`Previous hash: ${newBlock.previousBlockHash}`)
     }
 
     newBlock.hash = SHA256(JSON.stringify(newBlock)).toString()
-    console.log(`New hash: ${newBlock.hash}`)
 
     await this.addBlockToDB(newBlock.height, JSON.stringify(newBlock))
   }
 
   /**
-   * Criteria: Modify getBlockHeight() function to retrieve current block height within the LevelDB chain.
+   * @description Criteria: Modify getBlockHeight() function to retrieve current block height within the LevelDB chain.
    */
   async getBlockHeight () {
     return await this.getBlockHeightFromDB()
   }
 
   /**
-   * Criteria: Modify getBlock() function to retrieve a block by it's block heigh within the LevelDB chain.
-   * 
+   * @description Criteria: Modify getBlock() function to retrieve a block by it's block heigh within the LevelDB chain.
    * @param {int} blockHeight 
    */
   async getBlock (blockHeight) {
@@ -58,8 +47,7 @@ class Blockchain {
   }
 
   /**
-   * Criteria: Modify the validateBlock() function to validate a block stored within levelDB.
-   * 
+   * @description Criteria: Modify the validateBlock() function to validate a block stored within levelDB.
    * @param {int} blockHeight 
    */
   async validateBlock (blockHeight) {
@@ -78,7 +66,7 @@ class Blockchain {
   }
 
   /**
-   * Criteria: Modify the validateChain() function to validate blockchain stored within levelDB.
+   * @description Criteria: Modify the validateChain() function to validate blockchain stored within levelDB.
    */
   async validateChain () {
     let errorLog = []
@@ -113,8 +101,6 @@ class Blockchain {
     }
   }
 
-  // Level db functions
-
   async addBlockToDB (key, value) {
     return new Promise((resolve, reject) => {
       db.put(key, value, (error) => {
@@ -122,7 +108,6 @@ class Blockchain {
           return reject(error)
         }
 
-        console.log(`Added block #${key}`)
         return resolve(`Added block #${key}`)
       })
     })
@@ -170,7 +155,7 @@ class Blockchain {
         block = JSON.parse(data.value)
         
         if (block.hash === hash) {
-          if (parseInt(data.key) > 0) {
+          if (!this.isGenesis(data.key)) {
             block.body.star.storyDecoded = new Buffer(block.body.star.story, 'hex').toString()
             return resolve(block)
           } else {
@@ -192,7 +177,7 @@ class Blockchain {
     return new Promise((resolve, reject) => {
       db.createReadStream().on('data', (data) => {
         // Don't check the genesis block
-        if (parseInt(data.key) > 0) {
+        if (!this.isGenesis(data.key)) {
           block = JSON.parse(data.value)
 
           if (block.body.address === address) {
@@ -206,6 +191,10 @@ class Blockchain {
         return resolve(blocks)
       })
     })
+  }
+
+  isGenesis (key) {
+    return parseInt(key) === 0
   }
 }
 
