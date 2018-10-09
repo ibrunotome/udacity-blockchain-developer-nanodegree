@@ -16,6 +16,6 @@ Building your own Private Blockchain utilizing Node.js with LevelDB.
 
 Create a web API using a Node.js framework that will interact with your private blockchain to submit and retrieve blockchain data.
 
-### 4. Build a Private Blockchain Notary Service 🔄
+### 4. Build a Private Blockchain Notary Service ✅
 
 Utilizing your existing web API, you will create a star registry notarization service.
