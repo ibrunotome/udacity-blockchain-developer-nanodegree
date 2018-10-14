@@ -22,40 +22,76 @@ contract StarNotary is ERC721 {
     mapping(uint256 => uint256) public starsForSale;
     mapping(bytes32 => bool) public starHashMap;
 
-    function createStar(string _name, string _story,  string _ra, string _dec, string _mag) public {
+    /**
+    * Create star
+    *
+    * @param name The name of the star
+    * @param story The story
+    * @param ra The ra of the star
+    * @param dec The dec of the star
+    * @param mag The mag of the star
+    */
+    function createStar(string name, string story,  string ra, string dec, string mag) public {
         tokenCount++;
-        uint256 _tokenId = tokenCount;
+        uint256 tokenId = tokenCount;
 
         //check if tokenId already exists
-        require(keccak256(abi.encodePacked(tokenIdToStarInfo[_tokenId].coordinates.dec)) == keccak256(""));
+        require(keccak256(abi.encodePacked(tokenIdToStarInfo[tokenId].coordinates.dec)) == keccak256(""));
 
         //check input 
-        require(keccak256(abi.encodePacked(_ra)) != keccak256(""));
-        require(keccak256(abi.encodePacked(_dec)) != keccak256(""));
-        require(keccak256(abi.encodePacked(_mag)) != keccak256(""));
-        require(_tokenId != 0);
-        require(!checkIfStarExist(_ra, _dec, _mag));
+        require(keccak256(abi.encodePacked(ra)) != keccak256(""));
+        require(keccak256(abi.encodePacked(dec)) != keccak256(""));
+        require(keccak256(abi.encodePacked(mag)) != keccak256(""));
+        require(tokenId != 0);
+        require(!checkIfStarExist(ra, dec, mag));
 
-        Coordinates memory newCoordinates = Coordinates(_ra, _dec, _mag);
-        Star memory newStar = Star(_name, _story, newCoordinates);
+        Coordinates memory newCoordinates = Coordinates(ra, dec, mag);
+        Star memory newStar = Star(name, story, newCoordinates);
 
-        tokenIdToStarInfo[_tokenId] = newStar;
+        tokenIdToStarInfo[tokenId] = newStar;
 
-        bytes32 hash = generateStarHash(_ra, _dec, _mag);
+        bytes32 hash = generateStarHash(ra, dec, mag);
         starHashMap[hash] = true;
 
-        _mint(msg.sender, _tokenId);
+        _mint(msg.sender, tokenId);
     }
 
-    function checkIfStarExist(string _ra, string _dec, string _mag) public view returns(bool) {
-        return starHashMap[generateStarHash(_ra, _dec, _mag)];
+    function putStarUpForSale(uint256 tokenId, uint256 price) public { 
+        require(this.ownerOf(tokenId) == msg.sender);
+
+        starsForSale[tokenId] = price;
     }
 
-    function generateStarHash(string _ra, string _dec, string _mag) private pure returns(bytes32) {
-        return keccak256(abi.encodePacked(_ra, _dec, _mag));
+    function buyStar(uint256 tokenId) public payable { 
+        require(starsForSale[tokenId] > 0);
+        
+        uint256 starCost = starsForSale[tokenId];
+        address starOwner = this.ownerOf(tokenId);
+        require(msg.value >= starCost);
+
+        _removeTokenFrom(starOwner, tokenId);
+        _addTokenTo(msg.sender, tokenId);
+        
+        starOwner.transfer(starCost);
+
+        if (msg.value > starCost) { 
+            msg.sender.transfer(msg.value - starCost);
+        }
     }
 
-    function tokenIdToStarInfo(uint256 _tokenId) public view returns(string, string, string, string, string){
-        return (tokenIdToStarInfo[_tokenId].name, tokenIdToStarInfo[_tokenId].story, tokenIdToStarInfo[_tokenId].coordinates.ra, tokenIdToStarInfo[_tokenId].coordinates.dec, tokenIdToStarInfo[_tokenId].coordinates.mag);
+    function checkIfStarExist(string ra, string dec, string mag) public view returns(bool) {
+        return starHashMap[generateStarHash(ra, dec, mag)];
+    }
+
+    function generateStarHash(string ra, string dec, string mag) private pure returns(bytes32) {
+        return keccak256(abi.encodePacked(ra, dec, mag));
+    }
+
+    function tokenIdToStarInfo(uint256 tokenId) public view returns(string, string, string, string, string) {
+        return (tokenIdToStarInfo[tokenId].name, tokenIdToStarInfo[tokenId].story, tokenIdToStarInfo[tokenId].coordinates.ra, tokenIdToStarInfo[tokenId].coordinates.dec, tokenIdToStarInfo[tokenId].coordinates.mag);
+    }
+
+    function mint(uint256 tokenId) public {
+        super._mint(msg.sender, tokenId);
     }
 }
