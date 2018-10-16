@@ -20,6 +20,6 @@ Create a web API using a Node.js framework that will interact with your private 
 
 Utilizing your existing web API, you will create a star registry notarization service.
 
-### 5. Descentralized Star Notary Project
+### 5. Descentralized Star Notary Project ✅
 
 Build additional functionality with your smart contract and deploy it on the public testnet to create a DApp.
