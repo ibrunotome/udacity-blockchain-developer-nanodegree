@@ -7,12 +7,15 @@ body {
     width: 50%;
     margin: 0 auto;
 }
+
 .bold { 
     font-weight: bolder;
 }
+
 .row {
     margin-bottom:10px;
 }
+
 button {
     margin: 2em 0;
     padding: 1em 4em;
