@@ -43,12 +43,24 @@ Saving artifacts...
 
 ## contract address
 0xc6df2f74bec1e32811f0c268f0814ddd2efb7630
+https://rinkeby.etherscan.io/address/0xc6df2f74bec1e32811f0c268f0814ddd2efb7630
 
-## contract txhash
+## contract hash
 0x15a1a5a851e06d7308025c871b4ec32fc0521822c2243772a1a17e52bfbd687f
+https://rinkeby.etherscan.io/tx/0x15a1a5a851e06d7308025c871b4ec32fc0521822c2243772a1a17e52bfbd687f
+
+## transaction hash
+0xce11aabe8ed3ec1a1b45f6e080a6be3ed721e1fca53ee76464af5c8d2c2a5606
+https://rinkeby.etherscan.io/tx/0xce11aabe8ed3ec1a1b45f6e080a6be3ed721e1fca53ee76464af5c8d2c2a5606
+
+## star tokenId
+1
 
 ## Udacity honor code
 
 Giving credits for places that helped me to do this project
 
 - Yury Prokashev, helped me on the slack channel to configure 2_deploy_contracts.js
+- https://walkingtree.tech/deploying-a-smart-contract-in-rinkeby-using-infura/
+- Udacity concepts section
+- Udacity Decentralized Star Notary Project at: https://study-hall.udacity.com/sg-562321-1911/rooms/community:nd1309:562321-cohort-1911-project-2297
