@@ -23,3 +23,10 @@ Utilizing your existing web API, you will create a star registry notarization se
 ### 5. Descentralized Star Notary Project ✅
 
 Build additional functionality with your smart contract and deploy it on the public testnet to create a DApp.
+
+
+## Donations
+
+**BTC:** 3FBtaV7ekmKMxq9pDPUqnxwLB5V48DayVx
+
+**NANO:** xrb_3d68nt9yttgok7a54n8pakyz7jkp65dgzhcycjz1397kno1iog493bxsmxa9
